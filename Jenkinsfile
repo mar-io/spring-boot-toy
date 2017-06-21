@@ -1,6 +1,6 @@
 #!groovy
 
-node {
+node('java8') {
   stage 'Checkout'
     checkout scm
 
