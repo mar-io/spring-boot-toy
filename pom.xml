@@ -5,7 +5,7 @@
 
     <groupId>org.springframework</groupId>
     <artifactId>gs-spring-boot-docker</artifactId>
-    <version>0.1.7</version>
+    <version>${api.version}</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -16,6 +16,8 @@
     <properties>
         <java.version>1.8</java.version>
         <docker.image.prefix>mario</docker.image.prefix>
+        <api.version></api.version>
+        <ecr.repository></ecr.repository>
     </properties>
 
     <dependencies>
@@ -51,7 +53,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <repository>903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker</repository>
+                    <repository>${ecr.repository}</repository>
                     <tag>${project.version}</tag>
                 </configuration>
             </plugin>
