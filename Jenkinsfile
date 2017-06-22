@@ -5,15 +5,14 @@ node('docker') {
     checkout scm
 
   stage 'Build'
+
   sh "apt-get update && apt-get install -y maven python3-pip python3-dev python3-yaml libyaml-dev"
   sh "pip3 install --upgrade awscli"
-  sh "\$(aws ecr get-login --region us-west-2)"
+  sh "\$(aws ecr get-login --region us-west-2 | sed -e 's/https/http/g')"
   sh "mvn clean package -Dapi.version=0.1.10 -Decr.repository=903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker"
 
   stage 'Push'
-  sh "cat /root/.docker/config.json"
-  sh "\$(aws ecr get-login --region us-west-2)"
-  sh "cat /root/.docker/config.json"
-  sh "mvn -X dockerfile:push -Dapi.version=0.1.10 -Decr.repository=903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker"
+
+  sh "mvn -X sdockerfile:push -Dapi.version=0.1.10 -Decr.repository=903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker"
 
 }
