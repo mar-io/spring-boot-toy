@@ -13,6 +13,6 @@ node('docker') {
 
   stage 'Push'
 
-  sh "mvn -X sdockerfile:push -Dapi.version=0.1.10 -Decr.repository=903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker"
+  sh "mvn -X dockerfile:push -Dapi.version=0.1.10 -Decr.repository=903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker"
 
 }
