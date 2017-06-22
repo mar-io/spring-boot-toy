@@ -1,7 +1,7 @@
 #!groovy
 
 node('docker') {
-  docker.withRegistry('https://903480711441.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:mario') {
+  docker.withRegistry('https://903480711441.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:ci') {
 
     stage 'Checkout'
       checkout scm
