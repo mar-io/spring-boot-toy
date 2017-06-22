@@ -53,7 +53,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <repository>${ecr.repository}</repository>
+                    <repository>903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker</repository>
                     <tag>${project.version}</tag>
                 </configuration>
             </plugin>
