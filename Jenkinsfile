@@ -17,6 +17,6 @@ node('docker') {
 
   sh "docker push 903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker:${POM_VERSION}"
   sh "docker tag 903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker:${POM_VERSION} 903480711441.dkr.ecr.us-west-2.amazonaws.com//mario/gs-spring-boot-docker:latest"
-  sh "docker push 903480711441.dkr.ecr.us-west-2.amazonaws.com//mario/gs-spring-boot-docker:latest"
+  sh "docker push 903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker:latest"
 
 }
