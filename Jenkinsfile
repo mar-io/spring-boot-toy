@@ -1,7 +1,7 @@
 #!groovy
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
 
-node('docker_java8') {
+node('docker') {
   docker.withRegistry('https://903480711441.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:ci') {
     
     stage 'Checkout'
@@ -10,7 +10,7 @@ node('docker_java8') {
 
     stage 'Build'
   
-    //sh "apt-get update && apt-get install -y maven"
+    sh "apt-get update && apt-get install -y maven"
     sh "mvn clean package"
   
     stage 'Push'
