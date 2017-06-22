@@ -1,8 +1,8 @@
 #!groovy
-pom = readMavenPom file: 'pom.xml'
-currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker:${pom.version}"
 
 node('docker') {
+  pom = readMavenPom file: 'pom.xml'
+  currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker:${pom.version}"
   docker.withRegistry('https://903480711441.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:ci') {
     
     stage 'Checkout'
