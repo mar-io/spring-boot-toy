@@ -10,7 +10,6 @@ node('docker') {
 
     stage 'Build'
   
-    sh "apt-get update && apt-get install -y maven"
     sh "mvn clean package"
   
     stage 'Push'
