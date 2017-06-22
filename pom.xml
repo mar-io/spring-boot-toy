@@ -16,7 +16,7 @@
     <properties>
         <java.version>1.8</java.version>
         <docker.image.prefix>mario</docker.image.prefix>
-        <api.version></api.version>
+        <api.version>1.0.11</api.version>
         <ecr.repository></ecr.repository>
     </properties>
 
