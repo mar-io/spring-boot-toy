@@ -11,9 +11,12 @@ node('jenkins-slave') {
     stage 'Deploy'
 
     dir ('./infrastructure/ansible/api') {
-// ansible deploy different depending on job-name
+	// ansible deploy different depending on job-name
+      sh "ansible-galaxy install -r requirements.yml";
       switch(env.JOB_NAME) {
-        case 'mario-deploy': sh "ansible-playbook deploy.yml --extra-vars \"env=dev ecs_type=spot ecs_key_name=mario.harvey service_count=3\"" ; break;
+        case 'mario-deploy':
+        sh "ansible-playbook deploy.yml --extra-vars \"env=dev ecs_type=spot ecs_key_name=mario.harvey service_count=3\""; 
+        break;
         default: sh "echo \"nothing to build\""
       }
     }
