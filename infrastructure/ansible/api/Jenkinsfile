@@ -10,7 +10,7 @@ node('jenkins-slave') {
 
     stage 'Deploy'
 
-    dir ('./infrastructure/api') {
+    dir ('./infrastructure/ansible/api') {
 // ansible deploy different depending on job-name
       switch(env.JOB_NAME) {
         case 'mario-deploy': sh "ansible-playbook deploy.yml --extra-vars \"env=dev ecs_type=spot ecs_key_name=mario.harvey service_count=3\"" ; break;
