@@ -17,5 +17,5 @@ node('jenkins-slave') {
         default: sh "echo \"nothing to build\""
       }
     }
-  }
 }
+
