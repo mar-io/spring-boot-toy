@@ -10,7 +10,7 @@ datadog_checks:
     instances:
       - url: "unix://var/run/docker.sock"
 # ecs variables
-ecs_type: "ec2" # ec2, hybrid, spot
+ecs_type: "spot" # ec2, hybrid, spot
 ecs_state: present # present or absent. present creates. absent destroys.
 ecs_desired_cluster_size: "3" # if hybrid cluster, add n+1 due to 1 fallback ec2 asg instance.
 ecs_max_cluster_size: "9"
@@ -20,7 +20,7 @@ ecs_scaling_type: CPUReservation # CPUReservation, MemoryReservation, CPUUtiliza
 ecs_scale_up_percentage: "80"
 ecs_scale_down_percentage: "40"
 ecs_cluster_name: "mario-ecs-cluster"
-ecs_key_name: ""
+ecs_key_name: "mario.harvey"
 ecs_ami: "ami-19151f60"
 ecs_volume_size: "8"
 ecs_volume_type: "gp2"

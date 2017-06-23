@@ -8,19 +8,6 @@
 
   roles:
     - pwr-ecs
-
-- name: Launch B2C EC2 Container Service Cluster
-  hosts: localhost
-  strategy: debug
-  connection: local
-  gather_facts: false
-
-  tasks:
-    - name: Cat file to make sure its there.
-      shell: cat deploy.yml
-      register: output
-    - debug:
-       msg: "{{ output }}"
     
 # deploy service to ecs cluster
 - name: Launch B2C EC2 Container Service Cluster
