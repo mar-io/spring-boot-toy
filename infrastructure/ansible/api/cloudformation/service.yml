@@ -1,0 +1,353 @@
+---
+  AWSTemplateFormatVersion: "2010-09-09"
+  Description: "Deploy Services"
+  Parameters:
+    Env: 
+      Type: "String"
+      Description: "Environment name"
+      AllowedValues: ["dev", "qa", "prod"]
+      Default: "dev"
+    Region: 
+      Type: "String"
+      Description: "Region name"
+      AllowedValues: ["us-west-2"]
+      Default: "us-west-2"
+    BlueGreen:
+      Description: Specify the color of the environment.
+      Default: "none"
+      Type: String
+      AllowedValues: ["blue", "green", "none"]
+      ConstraintDescription: must set the environment color
+    ALBScheme:
+      Description: Specify if service is internal or internet-facing
+      Default: "internal"
+      Type: String
+      AllowedValues: ["internal", "internet-facing"]
+    ECSCluster:
+      Description: Name of ecs cluster to deploy into
+      Type: String
+    AppName:
+      Description: Name of app being deploy
+      Type: String
+    ECRURL: 
+      Description: ecr url
+      Type: String
+      Default: "903480711441.dkr.ecr.us-west-2.amazonaws.com"
+    ContainerFamily:
+      Description: name of container family/repo name
+      Type: String
+      Default: "mario"
+    ContainerName:
+      Description: container name
+      Type: String
+      Default: "gs-spring-boot-docker"
+    ContainerVersion:
+      Description: Version of Container Image to Deploy
+      Type: String
+      Default: "0.1.6"
+    ContainerCpuAllocation:
+      Description: Amount of Memory Allowed to Container
+      Type: Number
+      Default: 1024
+    ContainerMemHardAllocation:
+      Description: Max(hard) Limit of Memory a Container can Use.
+      Type: Number
+      Default: 1024
+    ContainerPort:
+      Description: Port App is Listening on Within Container.
+      Type: Number
+      Default: 8080
+    ListenerPort:
+      Description: Port For External Listener
+      Type: Number
+      Default: 80
+    Binpack:
+      Description: Binpack on Cpu or Memory
+      AllowedValues: ["cpu", "memory"]
+      Default: "cpu"
+      Type: String
+    MultiAz:
+      Description: Whether or not service is multi-az for high availability
+      AllowedValues: ["yes", "no"]
+      Default: "no"
+      Type: String
+    DesiredServices:
+      Description: Desired Amount of Containers to run.
+      Default: "1"
+      Type: String
+  Conditions:
+    IsProd: !Equals [!Ref Env, "prod"]
+    IsNone: !Equals [!Ref BlueGreen, "none"]
+    IsExternal: !Equals [!Ref ALBScheme, "internet"]
+    IsMultiAZ: !Equals [!Ref MultiAz, "yes"]
+    IsOpen: !Or
+    - !Condition IsProd
+    - !Condition IsExternal
+  Resources:
+    SecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        VpcId:
+          Fn::ImportValue: !Sub ${Env}-vpc-VPCId
+        GroupDescription: Allow all connections
+        SecurityGroupIngress:
+          -
+            IpProtocol: -1
+            FromPort: !Ref ListenerPort
+            ToPort: !Ref ListenerPort
+            CidrIp: !If [IsProd, '50.235.103.242/32', '192.168.0.0/16']
+          -
+            IpProtocol: icmp
+            FromPort: -1
+            ToPort: -1
+            CidrIp: !If [IsProd, '50.235.103.242/32', '192.168.0.0/16']
+    SecurityGroupIngress: # allow all traffic from services with lb attached
+      Type: "AWS::EC2::SecurityGroupIngress"
+      Properties: 
+        FromPort: 0
+        ToPort: 65535
+        GroupId: !Ref SecurityGroup
+        SourceSecurityGroupId: !Ref SecurityGroup
+        IpProtocol: "-1"
+    SecurityGroupExternalIngress: # allow all traffic from instances with load balancer
+      Condition: IsOpen
+      Type: "AWS::EC2::SecurityGroupIngress"
+      Properties: 
+        FromPort: !Ref ListenerPort
+        ToPort: !Ref ListenerPort
+        GroupId: !Ref SecurityGroup
+        CidrIp: "0.0.0.0/0"
+        IpProtocol: "tcp"
+    ServiceRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Statement:
+              -
+                Effect: Allow
+                Principal:
+                  Service:
+                    - ec2.amazonaws.com
+                    - application-autoscaling.amazonaws.com
+                    - elasticloadbalancing.amazonaws.com
+                    - ecs.amazonaws.com
+                Action:
+                  - sts:AssumeRole
+          Path: /
+          Policies:
+            -
+              PolicyName: ecs
+              PolicyDocument:
+                Statement:
+                -
+                  Effect: Allow
+                  Action:
+                    - ecr:*
+                    - elasticloadbalancing:*
+                    - ec2:*
+                    - ecs:*
+                    - application-autoscaling:DeregisterScalableTarget
+                    - application-autoscaling:DescribeScalableTargets
+                    - application-autoscaling:DescribeScalingActivities
+                    - application-autoscaling:DescribeScalingPolicies
+                    - application-autoscaling:PutScalingPolicy
+                    - application-autoscaling:RegisterScalableTarget
+                    - cloudwatch:DescribeAlarms
+                  Resource: "*"
+    ApplicationLoadBalancer:
+      Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+      Properties:
+        Scheme: !Ref ALBScheme
+        Subnets:
+          - Fn::ImportValue: !Sub "${Env}-vpc-PrivateSubnet1Id"
+          - Fn::ImportValue: !Sub "${Env}-vpc-PrivateSubnet2Id"
+          - Fn::ImportValue: !Sub "${Env}-vpc-PrivateSubnet3Id"
+        SecurityGroups:
+          - !Ref SecurityGroup
+    TargetGroup:
+      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        HealthCheckIntervalSeconds: 5
+        HealthCheckTimeoutSeconds: 3
+        HealthyThresholdCount: 3
+        UnhealthyThresholdCount: 6
+        HealthCheckPath: /
+        Name: !Sub ${Env}-${AppName}
+        Port: !Ref ContainerPort
+        Protocol: HTTP
+        VpcId:
+          Fn::ImportValue: !Sub "${Env}-vpc-VPCId"
+      DependsOn: ApplicationLoadBalancer
+    Listener:
+      Type: AWS::ElasticLoadBalancingV2::Listener
+      Properties:
+        DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            !Ref TargetGroup
+        LoadBalancerArn:
+          !Ref ApplicationLoadBalancer
+        Port: !Ref ListenerPort
+        Protocol: HTTP
+      DependsOn: ApplicationLoadBalancer
+    # ListenerRule:
+    #   Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    #   Properties:
+    #     Actions:
+    #     - Type: forward
+    #       TargetGroupArn:
+    #         Ref: TargetGroup
+    #     Conditions:
+    #     - Field: path-pattern
+    #       Values:
+    #       - "/img/*"
+    #     ListenerArn:
+    #       Ref: Listener
+    #     Priority: 1
+    TaskDefinition: 
+      Type: "AWS::ECS::TaskDefinition"
+      Properties: 
+        ContainerDefinitions: 
+          - 
+            Name: !Ref ContainerName
+            Image: !Sub "${ECRURL}/${ContainerFamily}/${ContainerName}:${ContainerVersion}"
+            Cpu: !Ref ContainerCpuAllocation
+            #Environment: env variables to pass to container
+            Hostname: !Sub ${Env}-${AppName}
+            MountPoints: 
+              - 
+                SourceVolume: "logs"
+                ContainerPath: "/logs/out.log"
+            Memory: !Ref ContainerMemHardAllocation
+            PortMappings: 
+              - 
+                ContainerPort: !Ref ContainerPort
+            EntryPoint: 
+              - "java"
+              - "-Djava.security.egd=file:/dev/./urandom"
+              - "-jar"
+              - "/app.jar"
+            Essential: "true"
+        Volumes: 
+          - 
+            Host: 
+              SourcePath: "/var/log/app"
+            Name: "logs"
+    Service:
+      Type: "AWS::ECS::Service"
+      Properties: 
+        ServiceName: !Sub ${Env}-${AppName}
+        Cluster: 
+          !Ref ECSCluster
+        DeploymentConfiguration:
+          MinimumHealthyPercent: 50
+        DesiredCount: !Ref DesiredServices
+        TaskDefinition: 
+          !Ref TaskDefinition
+        PlacementStrategies:
+          -
+            Type: binpack
+            Field: !Ref Binpack
+          -
+            Type: !If [IsMultiAZ, 'spread', 'random' ]
+            Field: !If [IsMultiAZ, 'attribute:ecs.availability-zone', !Ref "AWS::NoValue" ]
+        #PlacementConstraints:
+        LoadBalancers:
+        - TargetGroupArn:
+            !Ref TargetGroup
+          ContainerPort: !Ref ContainerPort
+          ContainerName: !Ref ContainerName
+        Role: !Ref ServiceRole
+    ServiceScalingTarget:
+      Type: AWS::ApplicationAutoScaling::ScalableTarget
+      Properties:
+        MaxCapacity: 20
+        MinCapacity: 1
+        ResourceId: !Join [ "/", [ service, !Ref ECSCluster, !GetAtt Service.Name ] ]
+        RoleARN: !GetAtt ServiceRole.Arn
+        ScalableDimension: ecs:service:DesiredCount
+        ServiceNamespace: ecs
+    ServiceScaleUpPolicy:
+      Type: AWS::ApplicationAutoScaling::ScalingPolicy
+      Properties: 
+        PolicyName: ServicePolicyUp
+        PolicyType: StepScaling
+        ScalingTargetId: 
+          Ref: ServiceScalingTarget
+        StepScalingPolicyConfiguration:
+          AdjustmentType: ChangeInCapacity
+          Cooldown: 300
+          MetricAggregationType: Average
+          StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+      DependsOn: ServiceScalingTarget
+    ServiceScaleDownPolicy:
+      Type: AWS::ApplicationAutoScaling::ScalingPolicy
+      Properties: 
+        PolicyName: ServicePolicyDown
+        PolicyType: StepScaling
+        ScalingTargetId: 
+          Ref: ServiceScalingTarget
+        StepScalingPolicyConfiguration:
+          AdjustmentType: ChangeInCapacity
+          Cooldown: 300
+          MetricAggregationType: Average
+          StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: -1
+      DependsOn: ServiceScalingTarget
+    ServiceAlarmHigh: 
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmDescription: Scale-up if CPU > 90% for 5 minutes
+        MetricName: CPUUtilization
+        Namespace: AWS/ECS
+        Statistic: Average
+        Period: 60
+        EvaluationPeriods: 5
+        Threshold: 90
+        AlarmActions: 
+          - 
+            Ref: ServiceScaleUpPolicy
+        Dimensions:
+          -
+            Name: ServiceName
+            Value: !GetAtt Service.Name
+          -
+            Name: ClusterName
+            Value: !Ref ECSCluster
+        ComparisonOperator: GreaterThanThreshold
+      DependsOn: ServiceScaleUpPolicy
+    ServiceAlarmLow: 
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmDescription: Scale-down if CPU < 10% for 15 minutes
+        MetricName: CPUUtilization
+        Namespace: AWS/ECS
+        Statistic: Average
+        Period: 300
+        EvaluationPeriods: 3
+        Threshold: 15
+        AlarmActions: 
+          - 
+            Ref: ServiceScaleDownPolicy
+        Dimensions:
+          -
+            Name: ServiceName
+            Value: !GetAtt Service.Name
+          -
+            Name: ClusterName
+            Value: !Ref ECSCluster
+        ComparisonOperator: LessThanThreshold
+      DependsOn: ServiceScaleDownPolicy
+  Outputs:
+    DNS:
+      Value: !GetAtt ApplicationLoadBalancer.DNSName
+      Description: "Load balancer DNS name"
+      Export:
+        Name: !Sub "${Env}-${AppName}-dns"
+    HostedZone:
+      Value: !GetAtt ApplicationLoadBalancer.CanonicalHostedZoneID
+      Export:
+        Name: !Sub "${Env}-${AppName}-hosted-zone"

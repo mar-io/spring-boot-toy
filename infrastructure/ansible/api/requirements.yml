@@ -1,0 +1,8 @@
+# from galaxy
+- src: Datadog.datadog
+  version: "1.3.0"
+# from github
+- src: git@github.com:powerreviews/pwr-ecs.git
+  version: "1.0.12"
+  scm: git
+  name: pwr-ecs

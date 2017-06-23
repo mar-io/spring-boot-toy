@@ -1,0 +1,43 @@
+---
+# b2c variables
+env: ""
+# datadog variables
+datadog_user: dd-agent
+datadog_api_key: a7c365a3076a7accfbc8d72053f0e2ba
+datadog_checks:
+  docker_daemon:
+    init_config:
+    instances:
+      - url: "unix://var/run/docker.sock"
+# ecs variables
+ecs_type: "ec2" # ec2, hybrid, spot
+ecs_state: present # present or absent. present creates. absent destroys.
+ecs_desired_cluster_size: "3" # if hybrid cluster, add n+1 due to 1 fallback ec2 asg instance.
+ecs_max_cluster_size: "9"
+ecs_max_spot_price: "0.10"
+ecs_instance_type: m3.medium
+ecs_scaling_type: CPUReservation # CPUReservation, MemoryReservation, CPUUtilization, MemoryUtilization
+ecs_scale_up_percentage: "80"
+ecs_scale_down_percentage: "40"
+ecs_cluster_name: "mario-ecs-cluster"
+ecs_key_name: ""
+ecs_ami: "ami-19151f60"
+ecs_volume_size: "8"
+ecs_volume_type: "gp2"
+# cloudformation deployment variables
+service_state: present
+name: "mario-app"
+aws_region: "us-west-2"
+set: "none" # blue/green/none
+alb_scheme: "internal"
+ecr_url: "903480711441.dkr.ecr.us-west-2.amazonaws.com"
+container_family: "mario"
+container_name: "gs-spring-boot-docker"
+container_version: "0.1.11"
+container_cpu: "1024"
+container_mem: "1048"
+container_port: "8080"
+listener_port: "80"
+binpack: "cpu"
+multi_az: "no"
+service_count: "1"

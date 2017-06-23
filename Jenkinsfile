@@ -1,7 +1,7 @@
-#!groovy
+#!/usr/bin/env groovy
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
 
-node('docker') {
+node('docker_java8') {
   docker.withRegistry('https://903480711441.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:ci') {
     
     stage 'Checkout'

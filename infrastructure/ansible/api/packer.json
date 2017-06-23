@@ -1,0 +1,39 @@
+{
+  "variables": {
+    "base_ami": "ami-351a104c",
+    "datadog_key": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "communicator": "ssh",
+    "ssh_pty": true,
+    "region": "us-west-2",
+    "source_ami": "{{user `base_ami`}}",
+    "instance_type": "t2.medium",
+    "ami_virtualization_type": "hvm",
+    "ssh_username": "ec2-user",
+    "ami_name": "pwr-b2c-ecs {{timestamp}}",
+    "ami_description": "Datadog bundled b2c ecs instance",
+    "tags": {
+      "PwrName": "pwr-b2c-ecs"
+    },
+    "run_tags": {
+      "PwrRole": "packer-image-building"
+    },
+    "subnet_id": "subnet-63c78b0a",
+    "vpc_id": "vpc-e2c68a8b",
+    "iam_instance_profile": "packer",
+    "user_data": "#!/bin/bash\necho 'Defaults:ec2-user !requiretty' > /etc/sudoers.d/888-ec2-user-requiretty"
+  }],
+  "provisioners": [
+    {
+        "type": "ansible-local",
+        "playbook_file": "configure.yml",
+        "galaxy_file": "requirements.yml",
+        "inventory_file": "inventory.yml",
+        "playbook_dir": "{{ pwd }}",
+        "staging_directory": "/home/ec2-user/",
+        "extra_arguments": [ "--extra-vars \"env=build datadog_api_key={{user `datadog_key`}}\"" ]
+    }
+  ]
+}
