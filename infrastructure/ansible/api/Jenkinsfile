@@ -9,10 +9,13 @@ node('jenkins-slave') {
       checkout scm
 
     stage 'Deploy'
+
+    dir ('./infrastructure/api') {
 // ansible deploy different depending on job-name
-    switch(env.JOB_NAME) {
-      case 'mario-deploy': sh "ansible-playbook deploy.yml --extra-vars \"env=dev ecs_type=spot ecs_key_name=mario.harvey service_count=3\"" ; break;
-      default: sh "echo \"nothing to build\""
+      switch(env.JOB_NAME) {
+        case 'mario-deploy': sh "ansible-playbook deploy.yml --extra-vars \"env=dev ecs_type=spot ecs_key_name=mario.harvey service_count=3\"" ; break;
+        default: sh "echo \"nothing to build\""
+      }
     }
   }
 }
