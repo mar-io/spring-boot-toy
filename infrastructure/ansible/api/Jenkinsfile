@@ -12,6 +12,9 @@ node('jenkins-slave') {
 
     dir ('./infrastructure/ansible/api') {
 	// ansible deploy different depending on job-name
+      sh "cat \"$HOME\"/.ssh/ansible-deploy-key"
+      sh "cat \"$HOME\"/.ssh/config"
+      sh "ssh github.com"
       sh "ansible-galaxy install -r requirements.yml";
       switch(env.JOB_NAME) {
         case 'mario-deploy':
