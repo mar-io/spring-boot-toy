@@ -38,12 +38,14 @@ node('jenkins-slave') {
 
     stage('Deploy') {
 
-      sh "ansible-galaxy install -r requirements.yml";
+      dir ('./infrastructure/ansible/api') {
+        sh "ansible-galaxy install -r requirements.yml";
       
-      ansiblePlaybook(
-        playbook: './infrastructure/ansible/api/deploy.yml',
-        extraVars: [
+        ansiblePlaybook(
+          playbook: 'deploy.yml',
+          extraVars: [
             env: 'dev'
         ])
+      }
     }
 }
