@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 
 // set a version parameter that is latest
+
 currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker"
 
 node('jenkins-slave') {
@@ -14,18 +15,12 @@ node('jenkins-slave') {
       dir ('./infrastructure/ansible/api') {
         // pull in ansible roles from github
         sh "ansible-galaxy install -r requirements.yml";
-        // deploy ecs cluster
+        // deploy via ansible
         ansiblePlaybook(
           playbook: 'deploy.yml',
           extraVars: [
             env: 'dev'
         ])
-        // deploy service
-        // ansiblePlaybook(
-        //   playbook: 'deploy-service.yml',
-        //   extraVars: [
-        //     env: 'dev'
-        // ])
       }
     }
 }
