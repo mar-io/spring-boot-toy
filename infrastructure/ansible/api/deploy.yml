@@ -1,20 +1,12 @@
 # deploy ecs cluster
 
-- name: Launch B2C EC2 Container Service Cluster
+- name: Deploy App
   hosts: localhost
-  strategy: debug
   connection: local
   gather_facts: false
 
   roles:
     - pwr-ecs
-
-# deploy service to ecs cluster
-- name: Launch B2C EC2 Container Service Cluster
-  hosts: localhost
-  strategy: debug
-  connection: local
-  gather_facts: false
   
   tasks:
     - name: Launching or Updating ECS Service

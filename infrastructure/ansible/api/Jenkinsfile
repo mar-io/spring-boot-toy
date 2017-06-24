@@ -9,43 +9,24 @@ node('jenkins-slave') {
       checkout scm
     }
 
-    // dir ('./infrastructure/ansible/api') {
-      
-    //   stage('Deploy ECS') {
-    //     // pull in ansible roles for github
-    //     sh "ansible-galaxy install -r requirements.yml";
-    //     // deploy ecs with different parameters based on env
-    //     switch(env.JOB_NAME) {
-    //       case 'mario-deploy':
-    //       // deploy ecs if needed
-    //       sh "ansible-playbook deploy-ecs.yml --extra-vars \"env=dev\"";
-    //       break;
-    //       default: sh "echo \"nothing to build\""
-    //     }
-    //   }
-
-    //   stage('Deploy Service') {
-    //   // service deploy different depending on environment job-name
-    //     switch(env.JOB_NAME) {
-    //       case 'mario-deploy':
-    //       // deploy service
-    //       sh "ansible-playbook deploy-service.yml --extra-vars \"env=dev\""; 
-    //       break;
-    //       default: sh "echo \"nothing to build\""
-    //     }
-    //   }
-    // }
-
     stage('Deploy') {
 
       dir ('./infrastructure/ansible/api') {
+        // pull in ansible roles from github
         sh "ansible-galaxy install -r requirements.yml";
-      
+        // deploy ecs cluster
         ansiblePlaybook(
-          playbook: 'deploy.yml',
+          inventory: 'inventory.yml',
+          playbook: 'deploy-ecs.yml',
           extraVars: [
             env: 'dev'
         ])
+        // deploy service
+        // ansiblePlaybook(
+        //   playbook: 'deploy-service.yml',
+        //   extraVars: [
+        //     env: 'dev'
+        // ])
       }
     }
 }
