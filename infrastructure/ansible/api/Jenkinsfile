@@ -16,8 +16,7 @@ node('jenkins-slave') {
         sh "ansible-galaxy install -r requirements.yml";
         // deploy ecs cluster
         ansiblePlaybook(
-          inventory: 'inventory.yml',
-          playbook: 'deploy-ecs.yml',
+          playbook: 'deploy.yml',
           extraVars: [
             env: 'dev'
         ])
