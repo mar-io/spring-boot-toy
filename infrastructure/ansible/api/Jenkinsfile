@@ -5,34 +5,31 @@ currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-dock
 
 node('jenkins-slave') {
 
-    stage 'Checkout'
+    stage('Checkout') {
       checkout scm
-
-    stage 'Deploy ECS'
-
-    dir ('./infrastructure/ansible/api') {
-	// ansible deploy different depending on environment job-name
-      sh "ansible-galaxy install -r requirements.yml";
-      switch(env.JOB_NAME) {
-        case 'mario-deploy':
-        // deploy ecs if needed
-        sh "ansible-playbook -vvvv deploy-ecs.yml --extra-vars \"env=dev\"";
-        break;
-        default: sh "echo \"nothing to build\""
-      }
     }
 
-    stage 'Deploy Service'
-
     dir ('./infrastructure/ansible/api') {
-  // ansible deploy different depending on environment job-name
-      switch(env.JOB_NAME) {
-        case 'mario-deploy':
-        // deploy service
-        sh "ansible-playbook -vvvv deploy-service.yml --extra-vars \"env=dev\""; 
-        break;
-        default: sh "echo \"nothing to build\""
+      stage('Deploy ECS') {
+        sh "ansible-galaxy install -r requirements.yml";
+        switch(env.JOB_NAME) {
+          case 'mario-deploy':
+          // deploy ecs if needed
+          sh "ansible-playbook -vvvv deploy-ecs.yml --extra-vars \"env=dev\"";
+          break;
+          default: sh "echo \"nothing to build\""
+        }
+      }
+
+      stage('Deploy Service') {
+      // ansible deploy different depending on environment job-name
+        switch(env.JOB_NAME) {
+          case 'mario-deploy':
+          // deploy service
+          sh "ansible-playbook -vvvv deploy-service.yml --extra-vars \"env=dev\""; 
+          break;
+          default: sh "echo \"nothing to build\""
+        }
       }
     }
 }
-
