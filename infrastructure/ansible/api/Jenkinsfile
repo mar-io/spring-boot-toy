@@ -15,7 +15,7 @@ node('jenkins-slave') {
         switch(env.JOB_NAME) {
           case 'mario-deploy':
           // deploy ecs if needed
-          sh "ansible-playbook -vvvv deploy-ecs.yml --extra-vars \"env=dev\"";
+          sh "ansible-playbook deploy-ecs.yml --extra-vars \"env=dev\"";
           break;
           default: sh "echo \"nothing to build\""
         }
@@ -26,7 +26,7 @@ node('jenkins-slave') {
         switch(env.JOB_NAME) {
           case 'mario-deploy':
           // deploy service
-          sh "ansible-playbook -vvvv deploy-service.yml --extra-vars \"env=dev\""; 
+          sh "ansible-playbook deploy-service.yml --extra-vars \"env=dev\""; 
           break;
           default: sh "echo \"nothing to build\""
         }
