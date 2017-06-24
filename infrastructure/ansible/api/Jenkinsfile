@@ -8,7 +8,7 @@ node('jenkins-slave') {
     stage 'Checkout'
       checkout scm
 
-    stage 'Deploy'
+    stage 'Deploy ECS'
 
     dir ('./infrastructure/ansible/api') {
 	// ansible deploy different depending on environment job-name
@@ -16,9 +16,20 @@ node('jenkins-slave') {
       switch(env.JOB_NAME) {
         case 'mario-deploy':
         // deploy ecs if needed
-        sh "ansible-playbook -vvvv deploy.yml --extra-vars \"env=dev service_state=absent\"";
+        sh "ansible-playbook -vvvv deploy-ecs.yml --extra-vars \"env=dev\"";
+        break;
+        default: sh "echo \"nothing to build\""
+      }
+    }
+
+    stage 'Deploy Service'
+
+    dir ('./infrastructure/ansible/api') {
+  // ansible deploy different depending on environment job-name
+      switch(env.JOB_NAME) {
+        case 'mario-deploy':
         // deploy service
-        sh "ansible-playbook -vvvv deploy.yml --extra-vars \"env=dev service_count=3\""; 
+        sh "ansible-playbook -vvvv deploy-service.yml --extra-vars \"env=dev\""; 
         break;
         default: sh "echo \"nothing to build\""
       }
