@@ -95,12 +95,12 @@
             IpProtocol: -1
             FromPort: !Ref ListenerPort
             ToPort: !Ref ListenerPort
-            CidrIp: !If [IsProd, '50.235.103.242/32', '192.168.0.0/16']
+            CidrIp: !If [IsProd, '40.245.103.242/32', '192.168.0.0/16']
           -
             IpProtocol: icmp
             FromPort: -1
             ToPort: -1
-            CidrIp: !If [IsProd, '50.235.103.242/32', '192.168.0.0/16']
+            CidrIp: !If [IsProd, '40.245.103.242/32', '192.168.0.0/16']
     SecurityGroupIngress: # allow all traffic from services with lb attached
       Type: "AWS::EC2::SecurityGroupIngress"
       Properties: 
@@ -177,6 +177,9 @@
         Protocol: HTTP
         VpcId:
           Fn::ImportValue: !Sub "${Env}-vpc-VPCId"
+        TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '0'
       DependsOn: ApplicationLoadBalancer
     Listener:
       Type: AWS::ElasticLoadBalancingV2::Listener
