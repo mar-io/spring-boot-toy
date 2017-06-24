@@ -1,0 +1,59 @@
+# deploy ecs cluster
+
+- name: Launch B2C EC2 Container Service Cluster
+  hosts: localhost
+  strategy: debug
+  connection: local
+  gather_facts: false
+
+  roles:
+    - pwr-ecs
+
+# deploy service to ecs cluster
+- name: Launch B2C EC2 Container Service Cluster
+  hosts: localhost
+  strategy: debug
+  connection: local
+  gather_facts: false
+  
+  tasks:
+    - name: Launching or Updating ECS Service
+      cloudformation:
+        stack_name: "{{ env }}-{{ name }}"
+        state: "{{ service_state }}"
+        region: "{{ aws_region }}"
+        template: "cloudformation/service.yml"
+        template_parameters:
+          Env: "{{ env }}"
+          Region: "{{ aws_region }}"
+          BlueGreen: "{{ set }}"
+          ALBScheme: "{{ alb_scheme }}"
+          ECSCluster: "{{ env }}-{{ ecs_cluster_name }}"
+          AppName: "{{ name }}"
+          ECRURL: "{{ ecr_url }}"
+          ContainerFamily: "{{ container_family }}"
+          ContainerName: "{{ container_name }}"
+          ContainerVersion: "{{ container_version }}"
+          ContainerCpuAllocation: "{{ container_cpu }}"
+          ContainerMemHardAllocation: "{{ container_mem }}"
+          ContainerPort: "{{ container_port }}"
+          ListenerPort: "{{ listener_port }}"
+          Binpack: "{{ binpack }}"
+          MultiAz: "{{ multi_az }}"
+          DesiredServices: "{{ service_count }}"
+      register: stack
+    - block: # error check on change
+      - name: show stack events
+        debug: msg="{{ stack.events }}"
+        when:
+          - stack.events[0] is defined
+      - name: show stack failure output
+        fail:
+         msg: msg="Cloudformation stack has failed. Check AWS Console for Details - {{ stack.log }}"
+        when:
+          - stack.log[0] is defined
+          - stack.events[0] is defined
+      - name: show stack outputs
+        debug: msg="{{ stack.stack_outputs }}"
+        when: service_state == "present"
+      when: stack.changed and service_state == "present"
