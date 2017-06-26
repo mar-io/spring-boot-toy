@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+def deploy_version = ''
 
 properties(
   [
@@ -25,7 +26,7 @@ node('jenkins-slave') {
 
     stage('Deploy') {
       // deploy latest pom version unless version specified
-      if (params.version == 'latest') { params.version = "${pom.version}" } else {}
+      if (params.version == 'latest') { deploy_version = "${pom.version}" } else { deploy_version = params.version }
       currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${version}"
       // go into ansible directory
       dir ('./infrastructure/ansible/api') {
