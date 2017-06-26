@@ -5,7 +5,7 @@ properties(
     // Make this a parameterized build.
     [$class: 'ParametersDefinitionProperty',
       parameterDefinitions: [
-        [$class: 'hudson.model.StringParameterDefinition', defaultValue: "latest", description: 'application version to deploy', name : 'app_version'],
+        [$class: 'hudson.model.StringParameterDefinition', defaultValue: "latest", description: 'application version to deploy', name : 'version'],
       ]
     ],
       [$class: 'jenkins.model.BuildDiscarderProperty',
@@ -25,8 +25,8 @@ node('jenkins-slave') {
 
     stage('Deploy') {
       // deploy latest pom version unless version specified
-      if (app_version == 'latest') { app_version = "${pom.version}" } else {}
-      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${app_version}"
+      if ("${version}" == 'latest') { String version = "${pom.version}" } else {}
+      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${version}"
       // go into ansible directory
       dir ('./infrastructure/ansible/api') {
         // pull in ansible roles from github
@@ -41,7 +41,7 @@ node('jenkins-slave') {
                 ecs_type: "spot",
                 container_family: "mario",
                 container_name: "gs-spring-boot-docker",
-                container_version: "${app_version}",
+                container_version: "${version}",
                 container_cpu: "1024",
                 container_mem: "1048",
                 multi_az: "no",
