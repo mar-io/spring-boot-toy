@@ -25,8 +25,8 @@ node('jenkins-slave') {
 
     stage('Deploy') {
       // deploy latest pom version unless version specified
-      if (params.version == 'latest') { params.version = "${pom.version}" } else {}
-      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${version}"
+      if (params.version == 'latest') { String deploy_version = "${pom.version}" } else { String deploy_version = param.version }
+      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${deploy_version}"
       // go into ansible directory
       dir ('./infrastructure/ansible/api') {
         // pull in ansible roles from github
@@ -41,7 +41,7 @@ node('jenkins-slave') {
                 ecs_type: "spot",
                 container_family: "mario",
                 container_name: "gs-spring-boot-docker",
-                container_version: "${version}",
+                container_version: "${deploy_version}",
                 container_cpu: "1024",
                 container_mem: "1048",
                 multi_az: "no",
