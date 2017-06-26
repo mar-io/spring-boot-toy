@@ -28,6 +28,6 @@ node('docker_java8') {
 
     build = "${env.BUILD_NUMBER}"
     version = "${pom.version}"
-    build job: 'mario-deploy', parameters: [[$class: 'StringParameterValue', name: 'build', value: build], [$class: 'StringParameterValue', name: 'version', value: version]]
+    build job: 'mario-deploy', parameters: [[$class: 'StringParameterValue', name: 'build', value: build], [$class: 'StringParameterValue', name: 'version', value: version]], propagate: false 
   }
 }
