@@ -6,7 +6,7 @@ node('docker_java8') {
 
     switch(env.JOB_BASE_NAME) {
       case ~/^dev.*$/:
-        def env = 'dev'
+        def deploy_env = 'dev'
       break;
       default: 
         sh "echo \"nothing to build. make sure job name starts with env name. env is dev,qa,prod\""
@@ -37,6 +37,6 @@ node('docker_java8') {
 
     build = "${env.BUILD_NUMBER}"
     version = "${pom.version}"
-    build job: "${env}-mario-deploy", parameters: [[$class: 'StringParameterValue', name: 'build', value: build], [$class: 'StringParameterValue', name: 'version', value: version]], propagate: false 
+    build job: "${deploy_env}-mario-deploy", parameters: [[$class: 'StringParameterValue', name: 'build', value: build], [$class: 'StringParameterValue', name: 'version', value: version]], propagate: false 
   }
 }
