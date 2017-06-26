@@ -210,6 +210,7 @@
     TaskDefinition: 
       Type: "AWS::ECS::TaskDefinition"
       Properties: 
+        Family: !Sub ${Env}-${AppName}-${ContainerVersion}
         ContainerDefinitions: 
           - 
             Name: !Ref ContainerName
