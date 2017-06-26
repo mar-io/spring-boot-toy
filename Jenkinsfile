@@ -19,9 +19,9 @@ node('docker_java8') {
     
     stage('Push') {
 
-      docker.image.id '903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker'
-      docker.image.push pom.version
-      docker.image.push 'latest'
+      docker.Image.id '903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker'
+      docker.Image.push pom.version
+      docker.Image.push 'latest'
     
     }
     // sh "docker push 903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker:${pom.version}"
