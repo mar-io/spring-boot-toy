@@ -33,7 +33,7 @@ node('jenkins-slave') {
         // pull in ansible roles from github
         sh "ansible-galaxy install -r requirements.yml";
         // deploy via ansible
-        switch(env.JOB_NAME) {
+        switch(env.JOB_BASE_NAME) {
           case ~/^dev.*$/:
             ansiblePlaybook(
               playbook: 'deploy.yml',
