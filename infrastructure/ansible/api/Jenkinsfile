@@ -1,18 +1,14 @@
 #!/usr/bin/env groovy
-def deploy_version = ''
-
 node('jenkins-slave') {
 
     stage('Checkout') {
       checkout scm
-      pom = readMavenPom file: 'pom.xml'
     }
 
 
     stage('Deploy') {
       // deploy latest pom version unless version specified. make sure to create build parameter called 'version' and that 'latest' is the default value.
-      if (params.version == 'latest') { deploy_version = "${pom.version}" } else { deploy_version = params.version }
-      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${deploy_version}"
+      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${params.version}-${params.build}"
       // go into ansible directory
       dir ('./infrastructure/ansible/api') {
         // pull in ansible roles from github
@@ -27,7 +23,8 @@ node('jenkins-slave') {
                 ecs_type: "spot",
                 container_family: "mario",
                 container_name: "gs-spring-boot-docker",
-                container_version: "${deploy_version}",
+                container_build: "${params.build}"
+                container_version: "${params.version}-${params.build}",
                 container_cpu: "1024",
                 container_mem: "1048",
                 multi_az: "no",

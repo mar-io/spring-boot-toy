@@ -25,6 +25,7 @@
           ECRURL: "{{ ecr_url }}"
           ContainerFamily: "{{ container_family }}"
           ContainerName: "{{ container_name }}"
+          ContainerBuild: "{{ container_build }}"
           ContainerVersion: "{{ container_version }}"
           ContainerCpuAllocation: "{{ container_cpu }}"
           ContainerMemHardAllocation: "{{ container_mem }}"

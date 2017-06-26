@@ -44,7 +44,9 @@
     ContainerVersion:
       Description: Version of Container Image to Deploy
       Type: String
-      Default: "0.1.6"
+    ContainerBuild:
+      Description: Build of Container Image to Deploy
+      Type: String
     ContainerCpuAllocation:
       Description: Amount of Memory Allowed to Container
       Type: Number
@@ -266,7 +268,7 @@
       Type: AWS::ApplicationAutoScaling::ScalableTarget
       Properties:
         MaxCapacity: 20
-        MinCapacity: 1
+        MinCapacity: !Ref DesiredServices
         ResourceId: !Join [ "/", [ service, !Ref ECSCluster, !GetAtt Service.Name ] ]
         RoleARN: !GetAtt ServiceRole.Arn
         ScalableDimension: ecs:service:DesiredCount
