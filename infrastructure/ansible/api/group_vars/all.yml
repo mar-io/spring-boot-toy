@@ -28,7 +28,7 @@ ecs_volume_type: "gp2"
 service_state: present
 name: "mario-app"
 aws_region: "us-west-2"
-set: "none" # blue/green/none
+set: "solo" # blue/green/solo
 alb_scheme: "internal"
 ecr_url: "903480711441.dkr.ecr.us-west-2.amazonaws.com"
 container_family: "mario"

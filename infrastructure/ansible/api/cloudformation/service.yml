@@ -13,10 +13,10 @@
       AllowedValues: ["us-west-2"]
       Default: "us-west-2"
     BlueGreen:
-      Description: Specify the color of the environment.
-      Default: "none"
+      Description: Specify color if blue/green otherwise it's solo.
+      Default: "solo"
       Type: String
-      AllowedValues: ["blue", "green", "none"]
+      AllowedValues: ["blue", "green", "solo"]
       ConstraintDescription: must set the environment color
     ALBScheme:
       Description: Specify if service is internal or internet-facing
@@ -79,7 +79,7 @@
       Type: String
   Conditions:
     IsProd: !Equals [!Ref Env, "prod"]
-    IsNone: !Equals [!Ref BlueGreen, "none"]
+    IsNone: !Equals [!Ref BlueGreen, "solo"]
     IsExternal: !Equals [!Ref ALBScheme, "internet"]
     IsMultiAZ: !Equals [!Ref MultiAz, "yes"]
     IsOpen: !Or
