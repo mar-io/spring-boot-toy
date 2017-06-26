@@ -195,31 +195,17 @@
         Port: !Ref ListenerPort
         Protocol: HTTP
       DependsOn: ApplicationLoadBalancer
-    # ListenerRule:
-    #   Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    #   Properties:
-    #     Actions:
-    #     - Type: forward
-    #       TargetGroupArn:
-    #         Ref: TargetGroup
-    #     Conditions:
-    #     - Field: path-pattern
-    #       Values:
-    #       - "/img/*"
-    #     ListenerArn:
-    #       Ref: Listener
-    #     Priority: 1
     TaskDefinition: 
       Type: "AWS::ECS::TaskDefinition"
       Properties: 
-        Family: !Sub ${Env}-${AppName}-${ContainerVersion}
+        Family: !Sub ${Env}-${AppName}-${ContainerBuild}
         ContainerDefinitions: 
           - 
             Name: !Ref ContainerName
             Image: !Sub "${ECRURL}/${ContainerFamily}/${ContainerName}:${ContainerVersion}"
             Cpu: !Ref ContainerCpuAllocation
             #Environment: env variables to pass to container
-            Hostname: !Sub ${Env}-${AppName}
+            Hostname: !Sub ${Env}-${AppName}-${ContainerBuild}
             MountPoints: 
               - 
                 SourceVolume: "logs"
