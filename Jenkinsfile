@@ -1,17 +1,17 @@
 #!/usr/bin/env groovy
-switch(env.JOB_NAME) {
-  case ~/^dev.*$/:
-    def env = 'dev'
-  break;
-  default: 
-    sh "echo \"nothing to build. make sure env is dev,qa,prod\""
-    sh "exit 1"
-}
-
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
 
 node('docker_java8') {
   docker.withRegistry('https://903480711441.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:ci') {
+
+    switch(env.JOB_NAME) {
+      case ~/^dev.*$/:
+        def env = 'dev'
+      break;
+      default: 
+        sh "echo \"nothing to build. make sure job name starts with env name. env is dev,qa,prod\""
+        sh "exit 1"
+    }
     
     stage('Checkout') {
       
