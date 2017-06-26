@@ -38,7 +38,7 @@ node('jenkins-slave') {
               playbook: 'deploy.yml',
               extraVars: [
                 env: 'dev',
-                ecs_type: "spot"
+                ecs_type: "spot",
                 container_family: "mario",
                 container_name: "gs-spring-boot-docker",
                 container_version: "${app_version}",
