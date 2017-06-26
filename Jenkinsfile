@@ -1,7 +1,16 @@
 #!/usr/bin/env groovy
-def deployEnv = ''
-
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
+
+properties(
+  [
+    // Make this a parameterized build.
+      [$class: 'jenkins.model.BuildDiscarderProperty',
+      strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
+    ],
+  ]
+)
+
+def deployEnv = ''
 
 node('docker_java8') {
   docker.withRegistry('https://903480711441.dkr.ecr.us-west-2.amazonaws.com', 'ecr:us-west-2:ci') {

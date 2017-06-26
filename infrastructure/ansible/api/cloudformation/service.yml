@@ -198,7 +198,7 @@
     TaskDefinition: 
       Type: "AWS::ECS::TaskDefinition"
       Properties: 
-        Family: !Sub ${Env}-${AppName}-${ContainerBuild}
+        Family: !Sub ${Env}-${AppName}-${BlueGreen}
         ContainerDefinitions: 
           - 
             Name: !Ref ContainerName
