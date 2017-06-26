@@ -1,26 +1,57 @@
 #!/usr/bin/env groovy
 
-// set a version parameter that is latest
+properties(
+  [
+    // Make this a parameterized build.
+    [$class: 'ParametersDefinitionProperty',
+      parameterDefinitions: [
+        [$class: 'hudson.model.StringParameterDefinition', defaultValue: "latest", description: 'application version to deploy', name : 'app_version'],
+      ]
+    ],
+      [$class: 'jenkins.model.BuildDiscarderProperty',
+      strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
+    ],
+  ]
+)
 
-currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker"
 
 node('jenkins-slave') {
 
     stage('Checkout') {
       checkout scm
+      pom = readMavenPom file: 'pom.xml'
     }
 
-    stage('Deploy') {
 
+    stage('Deploy') {
+      // deploy latest pom version unless version specified
+      if (app_version == 'latest') { app_version = "${pom.version}" } else {}
+      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${app_version}"
+      // go into ansible directory
       dir ('./infrastructure/ansible/api') {
         // pull in ansible roles from github
         sh "ansible-galaxy install -r requirements.yml";
         // deploy via ansible
-        ansiblePlaybook(
-          playbook: 'deploy.yml',
-          extraVars: [
-            env: 'dev'
-        ])
+        switch(env.JOB_NAME) {
+          case ~/^mario.*$/:
+            ansiblePlaybook(
+              playbook: 'deploy.yml',
+              extraVars: [
+                env: 'dev',
+                ecs_type: "spot"
+                container_family: "mario",
+                container_name: "gs-spring-boot-docker",
+                container_version: "${app_version}",
+                container_cpu: "1024",
+                container_mem: "1048",
+                multi_az: "no",
+                service_count: "3"
+            ])
+          break;
+          default: 
+            sh "echo \"nothing to build. make sure jenkins job name specifies environment. ex. dev-yourapp-deploy\""
+            sh "exit 1"
+        }
       }
     }
 }
