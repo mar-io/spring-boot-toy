@@ -1,4 +1,12 @@
 #!/usr/bin/env groovy
+switch(env.JOB_NAME) {
+  case ~/^dev.*$/:
+    def env = 'dev'
+  break;
+  default: 
+    sh "echo \"nothing to build. make sure env is dev,qa,prod\""
+    sh "exit 1"
+
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
 
 node('docker_java8') {
@@ -28,6 +36,6 @@ node('docker_java8') {
 
     build = "${env.BUILD_NUMBER}"
     version = "${pom.version}"
-    build job: 'mario-deploy', parameters: [[$class: 'StringParameterValue', name: 'build', value: build], [$class: 'StringParameterValue', name: 'version', value: version]], propagate: false 
+    build job: "${env}-mario-deploy", parameters: [[$class: 'StringParameterValue', name: 'build', value: build], [$class: 'StringParameterValue', name: 'version', value: version]], propagate: false 
   }
 }
