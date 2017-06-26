@@ -5,7 +5,7 @@
 
     <groupId>org.springframework</groupId>
     <artifactId>gs-spring-boot-docker</artifactId>
-    <version>0.1.13</version>
+    <version>0.1.14</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
