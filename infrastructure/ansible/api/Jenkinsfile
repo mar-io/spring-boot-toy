@@ -25,7 +25,6 @@ node('jenkins-slave') {
       checkout scm
     }
 
-
     stage('Deploy') {
       // deploy latest pom version unless version specified. make sure to create build parameter called 'version' and that 'latest' is the default value.
       currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${params.version}-${params.build}"
@@ -35,14 +34,12 @@ node('jenkins-slave') {
         sh "ansible-galaxy install -r requirements.yml";
         // deploy via ansible
         switch(env.JOB_NAME) {
-          case ~/^mario.*$/:
+          case ~/^dev.*$/:
             ansiblePlaybook(
               playbook: 'deploy.yml',
               extraVars: [
                 env: 'dev',
                 ecs_type: "spot",
-                container_family: "mario",
-                container_name: "gs-spring-boot-docker",
                 container_build: "${params.build}",
                 container_version: "${params.version}-${params.build}",
                 container_cpu: "1024",
