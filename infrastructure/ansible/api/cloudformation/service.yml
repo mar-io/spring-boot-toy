@@ -205,7 +205,7 @@
             Image: !Sub "${ECRURL}/${ContainerFamily}/${ContainerName}:${ContainerVersion}"
             Cpu: !Ref ContainerCpuAllocation
             #Environment: env variables to pass to container
-            Hostname: !Sub ${Env}-${AppName}
+            Hostname: !Sub ${Env}-${AppName}-${ContainerBuild}
             MountPoints: 
               - 
                 SourceVolume: "logs"

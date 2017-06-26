@@ -1,4 +1,24 @@
 #!/usr/bin/env groovy
+
+properties(
+  [
+    // Make this a parameterized build.
+    [$class: 'ParametersDefinitionProperty',
+      parameterDefinitions: [
+        [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: 'application version to deploy', name : 'version'],
+      ]
+    ],
+    [$class: 'ParametersDefinitionProperty',
+      parameterDefinitions: [
+        [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: 'build version to deploy', name : 'build'],
+      ]
+    ],
+      [$class: 'jenkins.model.BuildDiscarderProperty',
+      strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
+    ],
+  ]
+)
+
 node('jenkins-slave') {
 
     stage('Checkout') {
