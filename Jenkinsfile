@@ -9,7 +9,7 @@ node('docker_java8') {
       pom = readMavenPom file: 'pom.xml'
 
     }
-    
+
     stage('Build') {
   
       sh "mvn clean package"
@@ -19,7 +19,7 @@ node('docker_java8') {
     stage('Push') {
 
       docker.image '903480711441.dkr.ecr.us-west-2.amazonaws.com/mario/gs-spring-boot-docker'
-      docker.image.push "${pom.version}"
+      docker.image.push pom.version
       docker.image.push 'latest'
     
     }
