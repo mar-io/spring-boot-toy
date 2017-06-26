@@ -6,6 +6,7 @@ switch(env.JOB_NAME) {
   default: 
     sh "echo \"nothing to build. make sure env is dev,qa,prod\""
     sh "exit 1"
+}
 
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
 
