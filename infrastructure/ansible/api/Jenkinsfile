@@ -10,7 +10,7 @@ node('jenkins-slave') {
 
 
     stage('Deploy') {
-      // deploy latest pom version unless version specified. make sure parameter exists called version.
+      // deploy latest pom version unless version specified. make sure to create build parameter called 'version' and that 'latest' is the default value.
       if (params.version == 'latest') { deploy_version = "${pom.version}" } else { deploy_version = params.version }
       currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${deploy_version}"
       // go into ansible directory
