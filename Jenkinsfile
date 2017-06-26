@@ -9,7 +9,7 @@ node('docker_java8') {
         def env = 'dev'
       break;
       default: 
-        sh "echo \"nothing to build. make sure job name starts with env name. env is dev,qa,prod\""
+        sh "echo \"${env.JOB_NAME} nothing to build. make sure job name starts with env name. env is dev,qa,prod\""
         sh "exit 1"
     }
     
