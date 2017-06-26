@@ -23,7 +23,7 @@ node('jenkins-slave') {
                 ecs_type: "spot",
                 container_family: "mario",
                 container_name: "gs-spring-boot-docker",
-                container_build: "${params.build}"
+                container_build: "${params.build}",
                 container_version: "${params.version}-${params.build}",
                 container_cpu: "1024",
                 container_mem: "1048",
