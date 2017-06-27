@@ -36,7 +36,7 @@ node('docker_java8') {
     }
 
     stage('Build') {
-  
+      sh "M2_REPO=/home/jenkins/.m2"
       sh "mvn clean package"
   
     }
