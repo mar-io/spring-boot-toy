@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
 
-options {
+parameters {
     buildDiscarder(logRotator(numToKeepStr:'15'))
 }
 
