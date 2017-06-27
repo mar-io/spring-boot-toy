@@ -1,15 +1,19 @@
 #!/usr/bin/env groovy
 currentBuild.displayName = "${env.BUILD_NUMBER}:mario/gs-spring-boot-docker"
 
-properties(
-  [
-    // Make this a parameterized build.
-      [$class: 'jenkins.model.BuildDiscarderProperty',
-      strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
-    ],
-    disableConcurrentBuilds(),
-  ]
-)
+options {
+    buildDiscarder(logRotator(numToKeepStr:'15'))
+}
+
+// properties(
+//   [
+//     // Make this a parameterized build.
+//       [$class: 'jenkins.model.BuildDiscarderProperty',
+//       strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
+//     ],
+//     disableConcurrentBuilds(),
+//   ]
+// )
 
 def deployEnv = ''
 
@@ -21,8 +25,7 @@ node('docker_java8') {
         deployEnv = 'dev'
       break;
       default: 
-        sh "echo \"nothing to build. make sure job name starts with env name. env is dev,qa,prod\""
-        sh "exit 1"
+        error 'nothing to build. make sure job name starts with env name. env is dev,qa,prod'
     }
     
     stage('Checkout') {
@@ -49,6 +52,6 @@ node('docker_java8') {
 
     build = "${env.BUILD_NUMBER}"
     version = "${pom.version}"
-    build job: "${deployEnv}-mario-deploy", parameters: [[$class: 'StringParameterValue', name: 'build', value: build], [$class: 'StringParameterValue', name: 'version', value: version]], propagate: false 
+    build job: "${deployEnv}-mario-deploy", parameters: [[$class: 'StringParameterValue', name: 'buildNumber', value: build], [$class: 'StringParameterValue', name: 'version', value: version]], propagate: false 
   }
 }

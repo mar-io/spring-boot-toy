@@ -1,23 +1,31 @@
 #!/usr/bin/env groovy
 
-properties(
-  [
-    // Make this a parameterized build.
-    [$class: 'ParametersDefinitionProperty',
-      parameterDefinitions: [
-        [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: 'application version to deploy', name : 'version'],
-      ]
-    ],
-    [$class: 'ParametersDefinitionProperty',
-      parameterDefinitions: [
-        [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: 'build version to deploy', name : 'build'],
-      ]
-    ],
-      [$class: 'jenkins.model.BuildDiscarderProperty',
-      strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
-    ],
-  ]
-)
+options {
+    buildDiscarder(logRotator(numToKeepStr:'15'))
+    disableConcurrentBuilds()
+    string(defaultValue: '', description: 'application version to deploy', name: 'version')
+    string(defaultValue: '', description: 'build version to deploy', name: 'buildNumber')
+}
+
+
+// properties(
+//   [
+//     // Make this a parameterized build.
+//     [$class: 'ParametersDefinitionProperty',
+//       parameterDefinitions: [
+//         [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: 'application version to deploy', name : 'version'],
+//       ]
+//     ],
+//     [$class: 'ParametersDefinitionProperty',
+//       parameterDefinitions: [
+//         [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: '', name : 'buildNumber'],
+//       ]
+//     ],
+//       [$class: 'jenkins.model.BuildDiscarderProperty',
+//       strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
+//     ],
+//   ]
+// )
 
 node('jenkins-slave') {
 
@@ -27,7 +35,7 @@ node('jenkins-slave') {
 
     stage('Deploy') {
       // deploy latest pom version unless version specified. make sure to create build parameter called 'version' and that 'latest' is the default value.
-      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${params.version}-${params.build}"
+      currentBuild.displayName = "${env.BUILD_NUMBER}:deploy:mario/gs-spring-boot-docker:${params.version}-${params.buildNumber}"
       // go into ansible directory
       dir ('./infrastructure/ansible/api') {
         // pull in ansible roles from github
@@ -40,8 +48,8 @@ node('jenkins-slave') {
               extraVars: [
                 env: 'dev',
                 ecs_type: "spot",
-                container_build: "${params.build}",
-                container_version: "${params.version}-${params.build}",
+                container_build: "${params.buildNumber}",
+                container_version: "${params.version}-${params.buildNumber}",
                 container_cpu: "1024",
                 container_mem: "1048",
                 multi_az: "no",
