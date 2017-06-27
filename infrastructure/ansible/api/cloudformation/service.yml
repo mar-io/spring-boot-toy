@@ -155,6 +155,11 @@
                     - application-autoscaling:PutScalingPolicy
                     - application-autoscaling:RegisterScalableTarget
                     - cloudwatch:DescribeAlarms
+                    - kms:Encrypt
+                    - kms:Decrypt
+                    - kms:ReEncrypt*
+                    - kms:GenerateDataKey*
+                    - kms:DescribeKey
                   Resource: "*"
     ApplicationLoadBalancer:
       Type: AWS::ElasticLoadBalancingV2::LoadBalancer

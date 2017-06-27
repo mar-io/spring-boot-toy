@@ -19,7 +19,7 @@ node('jenkins-slave') {
       // go into ansible directory
       dir ('./infrastructure/ansible/api') {
         // pull in ansible roles from github
-        sh "ansible-galaxy install -r requirements.yml";
+        sh "ansible-galaxy install -r requirements.yml --force";
         // deploy via ansible
         switch(env.JOB_BASE_NAME) {
           case ~/^dev.*$/:
