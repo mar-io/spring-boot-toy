@@ -7,6 +7,7 @@ properties(
       [$class: 'jenkins.model.BuildDiscarderProperty',
       strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
     ],
+    disableConcurrentBuilds(),
   ]
 )
 
