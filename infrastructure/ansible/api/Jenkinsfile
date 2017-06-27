@@ -1,31 +1,11 @@
 #!/usr/bin/env groovy
 
-options {
+parameters {
     buildDiscarder(logRotator(numToKeepStr:'15'))
     disableConcurrentBuilds()
     string(defaultValue: '', description: 'application version to deploy', name: 'version')
     string(defaultValue: '', description: 'build version to deploy', name: 'buildNumber')
 }
-
-
-// properties(
-//   [
-//     // Make this a parameterized build.
-//     [$class: 'ParametersDefinitionProperty',
-//       parameterDefinitions: [
-//         [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: 'application version to deploy', name : 'version'],
-//       ]
-//     ],
-//     [$class: 'ParametersDefinitionProperty',
-//       parameterDefinitions: [
-//         [$class: 'hudson.model.StringParameterDefinition', defaultValue: "", description: '', name : 'buildNumber'],
-//       ]
-//     ],
-//       [$class: 'jenkins.model.BuildDiscarderProperty',
-//       strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']
-//     ],
-//   ]
-// )
 
 node('jenkins-slave') {
 
@@ -57,8 +37,7 @@ node('jenkins-slave') {
             ])
           break;
           default: 
-            sh "echo \"nothing to build. make sure jenkins job name specifies environment. ex. dev-yourapp-deploy\""
-            sh "exit 1"
+            error 'nothing to build. make sure jenkins job name specifies environment. ex. dev-yourapp-deploy'
         }
       }
     }
