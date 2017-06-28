@@ -36,7 +36,7 @@ node('docker_java8') {
     }
 
     stage('Build') {
-      sh "mvn -X"
+      sh "mvn clean package"
   
     }
     
