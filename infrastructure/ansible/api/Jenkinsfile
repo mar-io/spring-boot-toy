@@ -33,7 +33,7 @@ node('jenkins-slave') {
                 container_cpu: "1024",
                 container_mem: "1048",
                 multi_az: "no",
-                service_count: "3"
+                service_count: "1"
             ])
           break;
           default: 
