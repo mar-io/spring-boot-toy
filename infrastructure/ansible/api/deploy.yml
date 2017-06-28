@@ -4,12 +4,9 @@
   hosts: localhost
   connection: local
   gather_facts: false
-  set_fact:
-    ecs_desired_cluster_size: "{{ service_count | int + 1 }}" # if hybrid cluster, add n+1 due to 1 fallback ec2 asg instance.
-    ecs_max_cluster_size: "{{ service_count | int * 3 }}"
 
   roles:
-    - pwr-ecs
+    - { role: pwr-ecs, ecs_desired_cluster_size: "{{ service_count | int + 1 }}", ecs_max_cluster_size: "{{ service_count | int * 3 }}" }
 
   tasks:
     - name: Launching or Updating ECS Service
