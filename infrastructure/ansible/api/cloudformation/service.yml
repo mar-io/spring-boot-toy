@@ -160,6 +160,7 @@
                     - kms:ReEncrypt*
                     - kms:GenerateDataKey*
                     - kms:DescribeKey
+                    - dynamodb:Query
                   Resource: "*"
     ApplicationLoadBalancer:
       Type: AWS::ElasticLoadBalancingV2::LoadBalancer
