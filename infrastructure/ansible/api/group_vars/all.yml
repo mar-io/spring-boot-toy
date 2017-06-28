@@ -12,8 +12,6 @@ datadog_checks:
 # ecs variables
 ecs_type: "spot" # ec2, hybrid, spot
 ecs_state: present # present or absent. present creates. absent destroys.
-ecs_desired_cluster_size: {{ service_count + 1 }} # n+1 unless instances have overhead
-ecs_max_cluster_size: "9"
 ecs_max_spot_price: "0.10"
 ecs_instance_type: m3.medium
 ecs_scaling_type: CPUReservation # CPUReservation, MemoryReservation, CPUUtilization, MemoryUtilization
